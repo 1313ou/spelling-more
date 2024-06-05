@@ -1,0 +1,70 @@
+#!/usr/bin/python3
+
+import argparse
+import sqlite3
+from tqdm.auto import tqdm
+import process
+
+sql_samples = "SELECT sampleid, sample, oewnsynsetid FROM samples INNER JOIN synsets USING(synsetid)"
+sql_count_samples = "SELECT COUNT(*) FROM samples"
+
+progress = False
+
+
+def process_text(input_text, rowid):
+    r = process.process(input_text)
+    if r:
+        print(f"{rowid}\t{input_text}\t{r}")
+        return 1
+    return 0
+
+
+def count(conn, resume):
+    cursor = conn.cursor()
+    sql2 = build_sql(sql_count_samples, resume)
+    cursor.execute(sql2)
+    return cursor.fetchone()[0]
+
+
+def build_sql(sql, resume):
+    return sql + f" WHERE sampleid >= {resume}" if resume else sql
+
+
+def read(file, resume, checkf):
+    conn = sqlite3.connect(file)
+    cursor = conn.cursor()
+    sql2 = build_sql(sql_samples, resume)
+    cursor.execute(sql2)
+    n = count(conn, resume)
+    pb = tqdm(total=n, disable=not progress)
+    process_count = 0
+    while True:
+        row = cursor.fetchone()
+        if row is None:
+            break
+        rowid = row[0]
+        sample = row[1]
+        oewnsynsetid = row[2]
+        if checkf(sample, oewnsynsetid):
+            process_count += 1
+        pb.update(1)
+    conn.close()
+    print(f"{process_count} processed")
+
+
+def get_processing(name):
+    return globals()[name] if name else process_text
+
+
+def main():
+    parser = argparse.ArgumentParser(description="scans the samples from sqlite file")
+    parser.add_argument('database', type=str, help='database')
+    parser.add_argument('--resume', type=int, help='row to resume from')
+    parser.add_argument('--processing', type=str, help='processing function to apply')
+    args = parser.parse_args()
+    processing = get_processing(args.processing)
+    read(args.database, args.resume, processing)
+
+
+if __name__ == '__main__':
+    main()
