@@ -58,5 +58,5 @@ _ 5F low line underscore
 
 ELLIPSIS
 
-… three dots
+… 2026 three dots
 
