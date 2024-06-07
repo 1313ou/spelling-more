@@ -1,12 +1,15 @@
 #!/usr/bin/python3
 
 import argparse
+import sys
 import sqlite3
 from tqdm.auto import tqdm
 import process
+from process import *
 
-sql_samples = "SELECT sampleid, sample FROM samples"
-sql_count_samples = "SELECT COUNT(*) FROM samples"
+sql = "SELECT sampleid, sample FROM samples"
+sql_count = "SELECT COUNT(*) FROM samples"
+print(sql, file=sys.stderr)
 
 progress = False
 
@@ -21,7 +24,7 @@ def process_text(input_text, rowid):
 
 def count(conn, resume):
     cursor = conn.cursor()
-    sql2 = build_sql(sql_count_samples, resume)
+    sql2 = build_sql(sql_count, resume)
     cursor.execute(sql2)
     return cursor.fetchone()[0]
 
@@ -33,7 +36,7 @@ def build_sql(sql, resume):
 def read(file, resume, checkf):
     conn = sqlite3.connect(file)
     cursor = conn.cursor()
-    sql2 = build_sql(sql_samples, resume)
+    sql2 = build_sql(sql, resume)
     cursor.execute(sql2)
     n = count(conn, resume)
     pb = tqdm(total=n, disable=not progress)

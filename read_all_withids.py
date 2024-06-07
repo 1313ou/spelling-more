@@ -7,15 +7,20 @@ from tqdm.auto import tqdm
 import process
 from process import *
 
-sql = "SELECT synsetid, definition FROM synsets"
-sql_count = "SELECT COUNT(*) FROM synsets"
+sql_union = """
+SELECT 'sam' AS type, sampleid AS tablerowid, sample AS `text`, oewnsynsetid FROM samples INNER JOIN synsets USING(synsetid)
+UNION
+SELECT 'def' AS type, synsetid AS tablerowid, definition AS `text`, oewnsynsetid FROM synsets
+"""
+sql = f"SELECT oewnsynsetid, tablerowid, type, `text` FROM ({sql_union}) ORDER BY oewnsynsetid, tablerowid;"
+sql_count = f"SELECT COUNT(*) FROM ({sql_union});"
 print(sql, file=sys.stderr)
 
 progress = False
 
 
-def process_text(input_text, rowid):
-    r = process.process(input_text)
+def process_text(input_text, rowid, checkf):
+    r = checkf(input_text)
     if r:
         print(f"{rowid}\t{input_text}\t{r}")
         return 1
@@ -30,11 +35,12 @@ def count(conn, resume):
 
 
 def build_sql(sql, resume):
-    return sql + f" WHERE synsetid >= {resume}" if resume else sql
+    return sql + f" WHERE oewnsynsetid >= {resume}" if resume else sql
 
 
 def read(file, resume, checkf):
     conn = sqlite3.connect(file)
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     sql2 = build_sql(sql, resume)
     cursor.execute(sql2)
@@ -45,9 +51,11 @@ def read(file, resume, checkf):
         row = cursor.fetchone()
         if row is None:
             break
-        rowid = row[0]
-        definition = row[1]
-        if checkf(definition, rowid):
+        rowid = row["tablerowid"]
+        type = row["type"]
+        text = row["text"]
+        oewnsynsetid = row["oewnsynsetid"]
+        if process_text(text, oewnsynsetid, checkf):
             process_count += 1
         pb.update(1)
     conn.close()
@@ -55,7 +63,7 @@ def read(file, resume, checkf):
 
 
 def get_processing(name):
-    return globals()[name] if name else process_text
+    return globals()[name] if name else process.default_process
 
 
 def main():
@@ -65,6 +73,8 @@ def main():
     parser.add_argument('--processing', type=str, help='processing function to apply')
     args = parser.parse_args()
     processing = get_processing(args.processing)
+    if processing:
+        print(processing, file=sys.stderr)
     read(args.database, args.resume, processing)
 
 
