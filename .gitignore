@@ -1,4 +1,8 @@
 /oewn-*
 /yaml
 /pr-1313ou
+/oewn
 /__pycache__
+/from-yaml.py
+/wordnet.py
+/wordnet_yaml.py
