@@ -67,7 +67,7 @@ def get_processing(name):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="scans the definitions from sqlite file")
+    parser = argparse.ArgumentParser(description="scans the examples and definitions from sqlite file")
     parser.add_argument('database', type=str, help='database')
     parser.add_argument('--resume', type=int, help='row to resume from')
     parser.add_argument('--processing', type=str, help='processing function to apply')
