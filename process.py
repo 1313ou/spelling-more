@@ -19,6 +19,9 @@ def escape_apostrophe(input_text):
     esc = re.sub(r'(\S)\'ll\b', f'\\1{APOS_SUB}ll', esc)
     esc = re.sub(r'(\S)\'m\b', f'\\1{APOS_SUB}m', esc)
     esc = re.sub(r'n\'t\b', f'n{APOS_SUB}t', esc)
+    esc = re.sub(r'\'tis\b', f'{APOS_SUB}tis', esc)
+    esc = re.sub(r'o\'clock\b', f'o{APOS_SUB}clock', esc)
+    esc = re.sub(r's\'\s', f's{APOS_SUB}', esc) # plural genitive
     return esc
 
 
@@ -54,14 +57,6 @@ def unclosed(input_text, left, right):
         return None
 
 
-def find_unclosed_parentheses(input_text):
-    return unclosed(input_text, '(', ')')
-
-
-def find_unclosed_wn_quotes(input_text):
-    return unclosed(input_text, '`', '\'')
-
-
 def find(input_text, what):
     if input_text.find(what) != -1:
         return True
@@ -75,6 +70,14 @@ def search(input_text, what):
 
 
 #  C A L L A B L E
+
+def find_unclosed_parentheses(input_text):
+    return unclosed(input_text, '(', ')')
+
+
+def find_unclosed_wn_quotes(input_text):
+    return unclosed(input_text, '`', '\'')
+
 
 def find_2_hyphens(input_text):
     return find(input_text, '--')
@@ -108,11 +111,6 @@ def set_egdot(input_text):
     return None
 
 
-def set_apostrophe_escape(input_text):
-    esc = escape_apostrophe(input_text)
-    return f"{esc}" if esc != input_text else None
-
-
 def find_uneven_double_quotes(input_text):
     return uneven(input_text, '"')
 
@@ -121,12 +119,14 @@ def find_uneven_single_quotes(input_text):
     return uneven(input_text, '\'')
 
 
+def set_apostrophe_escape(input_text):
+    esc = escape_apostrophe(input_text)
+    return f"{esc}" if esc != input_text else None
+
+
 def find_unclosed_wn_quotes_excluding_apostrophe(input_text):
     esc = escape_apostrophe(input_text)
-    found, where = find_unclosed_wn_quotes(esc)
-    if found:
-        return f"@{where}"
-    return None
+    return find_unclosed_wn_quotes(esc)
 
 
 def with_semicolon_after_space(input_text):
