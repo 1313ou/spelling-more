@@ -22,10 +22,18 @@ def escape_apostrophe(input_text):
     return esc
 
 
-def unclosed(text, left, right):
+def uneven(input_text, c):
+    collected = [m.start() for m in re.finditer(rf'{c}', input_text)]
+    if len(collected) % 2 != 0:
+        return collected[-1]
+    else:
+        return None
+
+
+def unclosed(input_text, left, right):
     pat = rf'[{left}{right}]'
     # Find all parentheses in the text
-    parentheses = [m.group() for m in re.finditer(pat, text)]
+    parentheses = [m.group() for m in re.finditer(pat, input_text)]
 
     # Stack to track unclosed parentheses
     stack = []
@@ -37,40 +45,50 @@ def unclosed(text, left, right):
                 stack.pop()
             else:
                 # An unmatched closing parenthesis found
-                return text.index(paren)
+                return input_text.index(paren)
 
     # If stack is not empty, there are unclosed opening parentheses
     if stack:
-        return text.rindex(left)
+        return input_text.rindex(left)
     else:
         return None
 
 
-def find_unclosed_parentheses(text):
-    return unclosed(text, '`', '\'')
+def find_unclosed_parentheses(input_text):
+    return unclosed(input_text, '(', ')')
 
 
-def find_unclosed_wn_quotes(text):
-    return unclosed(text, '`', '\'')
+def find_unclosed_wn_quotes(input_text):
+    return unclosed(input_text, '`', '\'')
+
+
+def find(input_text, what):
+    if input_text.find(what) != -1:
+        return True
+    return None
+
+
+def search(input_text, what):
+    if re.search(fr"{what}", input_text):
+        return True
+    return None
 
 
 #  C A L L A B L E
 
-def find_2_hyphens_find(input_text):
-    if input_text.find('--') != -1:
-        return True
-    return None
-
-
 def find_2_hyphens(input_text):
-    if re.search(r"--", input_text):
-        return True
-    return None
+    return find(input_text, '--')
 
 
-def set_emdash_if_has_2_hyphens_after_nonspace(input_text):
-    if re.search(r"\S--", input_text):
-        return re.sub(r"\s*--\s*", " —— ", input_text)
+def search_2_hyphens(input_text):
+    return search(input_text, '--')
+
+
+def set_emdash_if_has_2_hyphens(input_text):
+    r = r'\s*--\s*'
+    s = " —— "
+    if re.search(r, input_text):
+        return re.sub(r, s, input_text)
     return None
 
 
@@ -92,39 +110,31 @@ def set_egdot(input_text):
 
 def set_apostrophe_escape(input_text):
     esc = escape_apostrophe(input_text)
-    return f" -> {esc}" if esc != input_text else None
+    return f"{esc}" if esc != input_text else None
 
 
-def find_unclosed_quotes_regex(text):
-    pattern = r'"[^"]*$'
-    match = re.search(pattern, text)
-    if match:
-        return match.group()
-    else:
-        return None
+def find_uneven_double_quotes(input_text):
+    return uneven(input_text, '"')
 
 
-def find_uneven_quotes(text):
-    # Find all quotes in the text
-    quotes = [m.start() for m in re.finditer(r'"', text)]
-
-    # If the number of quotes is odd, there is an unclosed quote
-    if len(quotes) % 2 != 0:
-        return quotes[-1]
-    else:
-        return None
+def find_uneven_single_quotes(input_text):
+    return uneven(input_text, '\'')
 
 
 def find_unclosed_wn_quotes_excluding_apostrophe(input_text):
     esc = escape_apostrophe(input_text)
     found, where = find_unclosed_wn_quotes(esc)
     if found:
-        return f" <{where}>"
+        return f"@{where}"
     return None
 
 
+def with_semicolon_after_space(input_text):
+    return search(input_text, r' ;')
+
+
 def default_process(input_text):
-    #pattern = r';.*;'
+    # pattern = r';.*;'
     pattern = r' ;'
     match = re.search(pattern, input_text)
     if match:

@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="read_all_withids (etc)" type="PythonConfigurationType" factoryName="Python">
+  <configuration default="false" name="read_all (etc)" type="PythonConfigurationType" factoryName="Python">
     <module name="spellchecker-more" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
