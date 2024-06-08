@@ -82,6 +82,14 @@ def set_etcdot(input_text):
     return None
 
 
+def set_egdot(input_text):
+    r = r'\beg\b'
+    s = "e.g."
+    if re.search(r, input_text):
+        return re.sub(r, s, input_text)
+    return None
+
+
 def set_apostrophe_escape(input_text):
     esc = escape_apostrophe(input_text)
     return f" -> {esc}" if esc != input_text else None
@@ -116,4 +124,10 @@ def find_unclosed_wn_quotes_excluding_apostrophe(input_text):
 
 
 def default_process(input_text):
-    return find_unclosed_wn_quotes_excluding_apostrophe(input_text)
+    #pattern = r';.*;'
+    pattern = r' ;'
+    match = re.search(pattern, input_text)
+    if match:
+        return match.group()
+    else:
+        return None
