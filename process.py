@@ -133,9 +133,17 @@ def with_semicolon_after_space(input_text):
     return search(input_text, r' ;')
 
 
+def find_double_quotes(input_text):
+    pattern = r'"'
+    match = re.search(pattern, input_text)
+    if match:
+        return match.group()
+    else:
+        return None
+
+
 def default_process(input_text):
-    # pattern = r';.*;'
-    pattern = r' ;'
+    pattern = r'`'
     match = re.search(pattern, input_text)
     if match:
         return match.group()

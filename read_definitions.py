@@ -17,7 +17,7 @@ progress = False
 def process_text(input_text, rowid):
     r = process.process(input_text)
     if r:
-        print(f"{rowid}\t{input_text}\t{r}")
+        print(f"{rowid}\t{input_text}\t▶\t{r}")
         return 1
     return 0
 
