@@ -21,7 +21,7 @@ def escape_apostrophe(input_text):
     esc = re.sub(r'n\'t\b', f'n{APOS_SUB}t', esc)
     esc = re.sub(r'\'tis\b', f'{APOS_SUB}tis', esc)
     esc = re.sub(r'o\'clock\b', f'o{APOS_SUB}clock', esc)
-    esc = re.sub(r's\'\s', f's{APOS_SUB}', esc) # plural genitive
+    esc = re.sub(r's\'\s', f's{APOS_SUB}', esc)  # plural genitive
     return esc
 
 
@@ -142,8 +142,26 @@ def find_double_quotes(input_text):
         return None
 
 
-def default_process(input_text):
+def find_backtick(input_text):
     pattern = r'`'
+    match = re.search(pattern, input_text)
+    if match:
+        return match.group()
+    else:
+        return None
+
+
+def find_ie(input_text):
+    pattern = (r'\bie\b')
+    match = re.search(pattern, input_text)
+    if match:
+        return match.group()
+    else:
+        return None
+
+
+def default_process(input_text):
+    pattern = (r'\bie\b')
     match = re.search(pattern, input_text)
     if match:
         return match.group()
