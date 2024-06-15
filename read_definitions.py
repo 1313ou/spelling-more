@@ -35,6 +35,7 @@ def build_sql(sql, resume):
 
 def read(file, resume, checkf):
     conn = sqlite3.connect(file)
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     sql2 = build_sql(sql, resume)
     cursor.execute(sql2)
@@ -45,8 +46,9 @@ def read(file, resume, checkf):
         row = cursor.fetchone()
         if row is None:
             break
-        rowid = row[0]
-        definition = row[1]
+        definition = row["definition"]
+        synsetid = row["synsetid"]
+        rowid = synsetid
         if checkf(definition, rowid):
             process_count += 1
         pb.update(1)

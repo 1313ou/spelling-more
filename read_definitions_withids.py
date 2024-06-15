@@ -7,7 +7,7 @@ from tqdm.auto import tqdm
 import process
 from process import *
 
-sql = "SELECT synsetid, definition, oewnsynsetid FROM synsets"
+sql = "SELECT synsetid, oewnsynsetid, definition FROM synsets"
 sql_count = "SELECT COUNT(*) FROM synsets"
 print(sql, file=sys.stderr)
 
@@ -35,6 +35,7 @@ def build_sql(sql, resume):
 
 def read(file, resume, checkf):
     conn = sqlite3.connect(file)
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     sql2 = build_sql(sql, resume)
     cursor.execute(sql2)
@@ -45,10 +46,11 @@ def read(file, resume, checkf):
         row = cursor.fetchone()
         if row is None:
             break
-        rowid = row[0]
-        definition = row[1]
-        oewnsynsetid = row[2]
-        if checkf(definition, oewnsynsetid):
+        definition = row["definition"]
+        synsetid = row["synsetid"]
+        oewnsynsetid = row["oewnsynsetid"]
+        rowid = f"{synsetid}\t{oewnsynsetid}"
+        if checkf(definition, rowid):
             process_count += 1
         pb.update(1)
     conn.close()

@@ -13,7 +13,7 @@ UNION
 SELECT 'def' AS type, synsetid AS tablerowid, definition AS `text`, oewnsynsetid FROM synsets
 """
 sql = f"SELECT oewnsynsetid, tablerowid, type, `text` FROM ({sql_union}) ORDER BY oewnsynsetid, tablerowid;"
-sql_count = f"SELECT COUNT(*) FROM ({sql_union});"
+sql_count = f"SELECT COUNT(*) FROM ({sql_union})"
 print(sql, file=sys.stderr)
 
 progress = False
@@ -51,11 +51,12 @@ def read(file, resume, checkf):
         row = cursor.fetchone()
         if row is None:
             break
-        rowid = row["tablerowid"]
-        type = row["type"]
         text = row["text"]
+        tablerowid = row["tablerowid"]
+        type = row["type"]
         oewnsynsetid = row["oewnsynsetid"]
-        if process_text(text, oewnsynsetid, checkf):
+        rowid = f"{oewnsynsetid}\t{tablerowid}\t{type}"
+        if process_text(text, rowid, checkf):
             process_count += 1
         pb.update(1)
     conn.close()
