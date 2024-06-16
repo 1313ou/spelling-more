@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="load_yaml" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+  <configuration default="false" name="load_yaml" type="PythonConfigurationType" factoryName="Python" folderName="from yaml" nameIsGenerated="true">
     <module name="spellchecker-more" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />

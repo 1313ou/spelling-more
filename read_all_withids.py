@@ -60,7 +60,7 @@ def read(file, resume, checkf):
             process_count += 1
         pb.update(1)
     conn.close()
-    print(f"{process_count} processed")
+    print(f"{process_count} processed", file=sys.stderr)
 
 
 def get_processing(name):

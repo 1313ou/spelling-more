@@ -21,7 +21,7 @@ def escape_apostrophe(input_text):
     esc = re.sub(r'n\'t\b', f'n{APOS_SUB}t', esc)
     esc = re.sub(r'\'tis\b', f'{APOS_SUB}tis', esc)
     esc = re.sub(r'o\'clock\b', f'o{APOS_SUB}clock', esc)
-    esc = re.sub(r's\'\s', f's{APOS_SUB}', esc)  # plural genitive
+    #esc = re.sub(r's\'\s', f's{APOS_SUB}', esc)  # plural genitive
     return esc
 
 
@@ -35,80 +35,89 @@ def uneven(input_text, c):
 
 def unclosed(input_text, left, right):
     pat = rf'[{left}{right}]'
-    # Find all parentheses in the text
-    parentheses = [m.group() for m in re.finditer(pat, input_text)]
+    # Find all left and right marks in the text
+    marks = [m.group() for m in re.finditer(pat, input_text)]
 
     # Stack to track unclosed parentheses
     stack = []
-    for paren in parentheses:
-        if paren == left:
-            stack.append(paren)
-        elif paren == right:
+    for mark in marks:
+        if mark == left:
+            stack.append(mark)
+        elif mark == right:
             if stack and stack[-1] == left:
                 stack.pop()
             else:
-                # An unmatched closing parenthesis found
-                return input_text.index(paren)
+                # An unmatched closing mark found
+                return input_text.index(mark)
 
-    # If stack is not empty, there are unclosed opening parentheses
+    # If stack is not empty, there are unclosed opening marks
     if stack:
         return input_text.rindex(left)
     else:
         return None
 
 
-def find(input_text, what):
+def find_using_find(input_text, what):
     if input_text.find(what) != -1:
         return True
     return None
 
 
-def search(input_text, what):
-    if re.search(fr"{what}", input_text):
-        return True
+def search_str(input_text, what):
+    return search(fr"{what}", input_text)
+
+
+def search(input_text, regex):
+    match = re.search(regex, input_text)
+    if match:
+        return match.group()
+    else:
+        return None
+
+
+def search_sub(input_text, regex, replacement):
+    if re.search(regex, input_text):
+        return re.sub(regex, replacement, input_text)
     return None
+
+
+def set_apostrophe_escape(input_text):
+    esc = escape_apostrophe(input_text)
+    return f"{esc}" if esc != input_text else None
 
 
 #  C A L L A B L E
 
-def find_unclosed_parentheses(input_text):
-    return unclosed(input_text, '(', ')')
-
-
-def find_unclosed_wn_quotes(input_text):
-    return unclosed(input_text, '`', '\'')
-
-
 def find_2_hyphens(input_text):
-    return find(input_text, '--')
+    return search_str(input_text, '--')
 
 
-def search_2_hyphens(input_text):
-    return search(input_text, '--')
-
-
-def set_emdash_if_has_2_hyphens(input_text):
+def find_emdash_if_has_2_hyphens(input_text):
     r = r'\s*--\s*'
     s = " —— "
-    if re.search(r, input_text):
-        return re.sub(r, s, input_text)
-    return None
+    return search_sub(r, s, input_text)
 
 
-def set_etcdot(input_text):
+def find_etc(input_text):
     r = r'\betc([^\.a-z])'
     s = "etc.\\1"
-    if re.search(r, input_text):
-        return re.sub(r, s, input_text)
-    return None
+    return search_sub(r, s, input_text)
 
 
-def set_egdot(input_text):
+def find_eg(input_text):
     r = r'\beg\b'
     s = "e.g."
-    if re.search(r, input_text):
-        return re.sub(r, s, input_text)
-    return None
+    return search_sub(r, s, input_text)
+
+
+def find_ie(input_text):
+    r = r'\bie\b'
+    s = "i.e."
+    return search_sub(r, s, input_text)
+
+
+def find_unclosed_parentheses(input_text):
+    return unclosed(input_text, '(', ')')
 
 
 def find_uneven_double_quotes(input_text):
@@ -119,9 +128,8 @@ def find_uneven_single_quotes(input_text):
     return uneven(input_text, '\'')
 
 
-def set_apostrophe_escape(input_text):
-    esc = escape_apostrophe(input_text)
-    return f"{esc}" if esc != input_text else None
+def find_unclosed_wn_quotes(input_text):
+    return unclosed(input_text, '`', '\'')
 
 
 def find_unclosed_wn_quotes_excluding_apostrophe(input_text):
@@ -129,41 +137,17 @@ def find_unclosed_wn_quotes_excluding_apostrophe(input_text):
     return find_unclosed_wn_quotes(esc)
 
 
-def with_semicolon_after_space(input_text):
+def find_semicolon_after_space(input_text):
     return search(input_text, r' ;')
 
 
 def find_double_quotes(input_text):
-    pattern = r'"'
-    match = re.search(pattern, input_text)
-    if match:
-        return match.group()
-    else:
-        return None
+    return search(input_text, r'"')
 
 
 def find_backtick(input_text):
-    pattern = r'`'
-    match = re.search(pattern, input_text)
-    if match:
-        return match.group()
-    else:
-        return None
-
-
-def find_ie(input_text):
-    pattern = (r'\bie\b')
-    match = re.search(pattern, input_text)
-    if match:
-        return match.group()
-    else:
-        return None
+    return search(input_text, r'`')
 
 
 def default_process(input_text):
-    pattern = (r'\bie\b')
-    match = re.search(pattern, input_text)
-    if match:
-        return match.group()
-    else:
-        return None
+    return True
