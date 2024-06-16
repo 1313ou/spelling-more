@@ -17,12 +17,16 @@ sql_count = f"SELECT COUNT(*) FROM ({sql_union})"
 print(sql, file=sys.stderr)
 
 progress = False
+full_print = False
 
 
 def process_text(input_text, rowid, checkf):
     r = checkf(input_text)
     if r:
-        print(f"{rowid}\t{input_text}\t▶\t{r}")
+        if full_print:
+            print(f"{rowid}\t{input_text}\t▶\t{r}")
+        else:
+            print(f"{rowid}\t{r}")
         return 1
     return 0
 

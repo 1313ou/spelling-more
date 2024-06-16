@@ -3,6 +3,8 @@ import re
 #  H E L P E R S
 
 APOS_SUB = '###'
+LEFT_QUOTE_SUB = '<<<'
+RIGHT_QUOTE_SUB = '>>>'
 
 
 def unescape_apostrophe(input_text):
@@ -21,7 +23,7 @@ def escape_apostrophe(input_text):
     esc = re.sub(r'n\'t\b', f'n{APOS_SUB}t', esc)
     esc = re.sub(r'\'tis\b', f'{APOS_SUB}tis', esc)
     esc = re.sub(r'o\'clock\b', f'o{APOS_SUB}clock', esc)
-    #esc = re.sub(r's\'\s', f's{APOS_SUB}', esc)  # plural genitive
+    # esc = re.sub(r's\'\s', f's{APOS_SUB}', esc)  # plural genitive
     return esc
 
 
@@ -64,10 +66,10 @@ def find_using_find(input_text, what):
 
 
 def search_str(input_text, what):
-    return search(fr"{what}", input_text)
+    return search_regex(input_text, fr"{what}")
 
 
-def search(input_text, regex):
+def search_regex(input_text, regex):
     match = re.search(regex, input_text)
     if match:
         return match.group()
@@ -86,6 +88,14 @@ def set_apostrophe_escape(input_text):
     return f"{esc}" if esc != input_text else None
 
 
+def sub_wn_quotes(input_text):
+    regex = r"`([^']*)'"
+    replacement = f"{LEFT_QUOTE_SUB}\\1{RIGHT_QUOTE_SUB}"
+    if re.search(regex, input_text):
+        return re.sub(regex, replacement, input_text)
+    return None
+
+
 #  C A L L A B L E
 
 def find_2_hyphens(input_text):
@@ -95,25 +105,25 @@ def find_2_hyphens(input_text):
 def find_emdash_if_has_2_hyphens(input_text):
     r = r'\s*--\s*'
     s = " —— "
-    return search_sub(r, s, input_text)
+    return search_sub(input_text, r, s)
 
 
 def find_etc(input_text):
     r = r'\betc([^\.a-z])'
     s = "etc.\\1"
-    return search_sub(r, s, input_text)
+    return search_sub(input_text, r, s)
 
 
 def find_eg(input_text):
     r = r'\beg\b'
     s = "e.g."
-    return search_sub(r, s, input_text)
+    return search_sub(input_text, r, s)
 
 
 def find_ie(input_text):
     r = r'\bie\b'
     s = "i.e."
-    return search_sub(r, s, input_text)
+    return search_sub(input_text, r, s)
 
 
 def find_unclosed_parentheses(input_text):
@@ -138,16 +148,62 @@ def find_unclosed_wn_quotes_excluding_apostrophe(input_text):
 
 
 def find_semicolon_after_space(input_text):
-    return search(input_text, r' ;')
+    return search_regex(input_text, r' ;')
 
 
 def find_double_quotes(input_text):
-    return search(input_text, r'"')
+    return search_regex(input_text, r'"')
 
 
 def find_backtick(input_text):
-    return search(input_text, r'`')
+    return search_regex(input_text, r'`')
+
+
+def process_apostrophe_1(input_text):
+    r = find_unclosed_wn_quotes(input_text)
+    if r:
+        return input_text
+    return None
+
+
+def process_wn_quotes(input_text):
+    r = sub_wn_quotes(input_text)
+    if r:
+        return r
+    return input_text
+
+
+def find_angle_brackets(input_text):
+    r = search_regex(input_text, r'<<<[^>]*>>>')
+    if r:
+        return r
+    return None
+
+
+def find_oddities(input_text):
+    r = find_backtick(input_text)
+    if r:
+        return input_text
+    r = find_double_quotes(input_text)
+    if r:
+        return input_text
+    r = find_unclosed_parentheses(input_text)
+    if r:
+        return input_text
+    r = find_2_hyphens(input_text)
+    if r:
+        return input_text
+    r = find_etc(input_text)
+    if r:
+        return input_text
+    r = find_eg(input_text)
+    if r:
+        return input_text
+    r = find_2_hyphens(input_text)
+    if r:
+        return input_text
+    return None
 
 
 def default_process(input_text):
-    return True
+    return input_text
