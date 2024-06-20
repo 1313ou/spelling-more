@@ -1,4 +1,5 @@
 import re
+import sys
 
 #  H E L P E R S
 
@@ -23,8 +24,25 @@ def escape_apostrophe(input_text):
     esc = re.sub(r'n\'t\b', f'n{APOS_SUB}t', esc)
     esc = re.sub(r'\'tis\b', f'{APOS_SUB}tis', esc)
     esc = re.sub(r'o\'clock\b', f'o{APOS_SUB}clock', esc)
-    # esc = re.sub(r's\'\s', f's{APOS_SUB}', esc)  # plural genitive
     return esc
+
+
+def escape_apostrophe_auto(input_text):
+    esc = escape_apostrophe(input_text)
+
+    xesc = esc
+    for w in ('students', 'opponents', 'florists', 'parents', 'neighbors', 'Years', 'Saints'):
+        xesc = re.sub(fr'({w})\'(\s)', f'\\1{APOS_SUB}\\2', xesc)  # plural genitive
+
+    xesc = re.sub(r'maitre d\'(\s)', f'maitre d{APOS_SUB}\\1', xesc)  # maitre d'
+    xesc = re.sub(r'(\s)d\'(\S)', f'\\1d{APOS_SUB}\\2', xesc)  # maitre d'
+    xesc = re.sub(r'd\'etat', f'd{APOS_SUB}etat', xesc) # coup d'etat
+    xesc = re.sub(r'd\'Unite', f'd{APOS_SUB}Unite', xesc) # d'Unite
+
+    xesc = re.sub(r'\bO\'\b', f'O{APOS_SUB}', xesc)  # maitre d'
+    if xesc != esc:
+        print(xesc, file=sys.stderr)
+    return xesc
 
 
 def uneven(input_text, c):
@@ -164,6 +182,13 @@ def process_apostrophe_1(input_text):
     if r:
         return input_text
     return None
+
+
+def process_escape_apostrophe_auto(input_text):
+    esc = escape_apostrophe(input_text)
+    if find_unclosed_wn_quotes(input_text):
+        esc = process_escape_apostrophe_auto(input_text)
+    return esc
 
 
 def process_wn_quotes(input_text):

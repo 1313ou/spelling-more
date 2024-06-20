@@ -2,6 +2,7 @@
 /yaml
 /fork
 /oewn
+/testing
 /__pycache__
 /from-yaml.py
 /wordnet.py
