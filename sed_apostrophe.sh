@@ -24,8 +24,8 @@ if [ ! -z "$1" ]; then
   DIR="$1"
 fi
 
-GREP='\-\-'
-SED='s/\s*--\s*/ — /g'
+GREP="'"
+SED="s/${GREP}/###/g"
 
 for f in $(find -L "${DIR}" -name 'noun*' -o -name 'verb*' -o -name 'adj*' -o -name 'adv*' | sort); do
     if grep -Hn "${GREP}" "${f}";then

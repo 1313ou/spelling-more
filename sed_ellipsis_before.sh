@@ -19,7 +19,6 @@ if [ "-m" == "$1" ]; then
   fi  
 fi
 
-
 DIR=.
 if [ ! -z "$1" ]; then
   DIR="$1"

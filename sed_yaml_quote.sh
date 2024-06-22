@@ -27,16 +27,23 @@ DIR=.
 if [ ! -z "$1" ]; then
   DIR="$1"
 fi
-DIR=testing
+DIR=yaml
 
-GREP="\`[^']*'+"
-SED2="s/\`\([^']*\)'\{1,2\}/<<<\1>>>/"
-SED1="s/\`\([^']*\)'\{1,2\}/<<<\1>>>/"
+GREP='^  \- ###.*###$'
+SED='s|^  \- ###\(.*\)###$|  - "\1"|'
+
+GREP='^  \- ###.*$'
+SED='s|^  \- ###|  - "|'
+
+GREP='^.*###$'
+SED='s|###$|"|'
+
 echo -e "${Y}${GREP}${Z}"
 echo -e "${Y}${SED}${Z}"
 echo
 for f in $(find -L "${DIR}" -name 'noun*' -o -name 'verb*' -o -name 'adj*' -o -name 'adv*' | sort); do
     #echo -e "${B}${f}${Z}"
+    #grep -Hno -E "${GREP}" "${f}" | tr ':' '\t'
     data=$(grep -Hno -E "${GREP}" "${f}" | tr ':' '\t')
     IFS=$'\n'
     for datum in ${data}; do
@@ -49,14 +56,6 @@ for f in $(find -L "${DIR}" -name 'noun*' -o -name 'verb*' -o -name 'adj*' -o -n
           echo -e "no lineno ${R}${datum}${Z}"
           continue
         fi
-        line=$(sed -n "${lineno}p" "${f}")
-
-        if grep -q "^  - '" <<< "${line}" ; then
-          echo -e "${LIGHT_BLACK}${line}${Z}"
-          SED="${SED1}"
-        else
-          SED="${SED2}"
-        fi
 
         change2=$(sed -n "${lineno}${SED}p" "${f}")
         if [ -z "${change2}" ]; then
@@ -65,15 +64,15 @@ for f in $(find -L "${DIR}" -name 'noun*' -o -name 'verb*' -o -name 'adj*' -o -n
         fi
         echo -e "${B}${change2}${Z}"
 
-        if confirm "${change}"; then
+        #if confirm "${change}"; then
           if [ ! -z "${MODIFY}" ]; then
               sed -i "${lineno}${SED}" "${f}"
           fi
-        else
-          if confirm "edit ${f}:${lineno}"; then
-            wait_for_kate --line ${lineno} "${f}"
-          fi
-        fi
+        #else
+        #  if confirm "edit ${f}:${lineno}"; then
+        #    wait_for_kate --line ${lineno} "${f}"
+        #  fi
+        #fi
     done
     #break
 done

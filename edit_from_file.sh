@@ -30,7 +30,7 @@ while read -r line; do
   # split
   f=$(echo "${r}" | awk -F  ':' '{print $1}')
   l=$(echo "${r}" | awk -F  ':' '{print $2}')
-  echo "${C}${f} @ ${l}${Z}"
+  echo -e "${C}${f} @ ${l}${Z}"
   # run
   wait_for_kate --line "${l}" "${f}"
   
