@@ -26,6 +26,8 @@ QUOTATION
 ' 27 apostrophe
 " 22 quotation
 ´ B4 acute accent
+ʼ 2BC apostrophe
+＇ FF07 full width apostrophe
 
 ‘ 2018 single quotation, left
 ’ 2019 single quotation, right
@@ -35,7 +37,7 @@ QUOTATION
 “ 201C double quotation mark, left
 ” 201D double quotation mark, right
 „ 201C double low quotation mark
-‟ 201F double reversed  quotation mark
+‟ 201F double reversed quotation mark
 
 ❛ 275B heavy quote
 ❜ 275C heavy quote
