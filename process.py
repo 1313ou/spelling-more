@@ -36,8 +36,8 @@ def escape_apostrophe_auto(input_text):
 
     xesc = re.sub(r'maitre d\'(\s)', f'maitre d{APOS_SUB}\\1', xesc)  # maitre d'
     xesc = re.sub(r'(\s)d\'(\S)', f'\\1d{APOS_SUB}\\2', xesc)  # maitre d'
-    xesc = re.sub(r'd\'etat', f'd{APOS_SUB}etat', xesc) # coup d'etat
-    xesc = re.sub(r'd\'Unite', f'd{APOS_SUB}Unite', xesc) # d'Unite
+    xesc = re.sub(r'd\'etat', f'd{APOS_SUB}etat', xesc)  # coup d'etat
+    xesc = re.sub(r'd\'Unite', f'd{APOS_SUB}Unite', xesc)  # d'Unite
 
     xesc = re.sub(r'\bO\'\b', f'O{APOS_SUB}', xesc)  # maitre d'
     if xesc != esc:
@@ -177,6 +177,63 @@ def find_backtick(input_text):
     return search_regex(input_text, r'`')
 
 
+def find_expanding_apostrophe(input_text):
+    if search_regex(input_text, r'＇'):
+        return input_text
+    return None
+
+
+def find_brackets(input_text, b1, b2):
+    r = search_regex(input_text, fr'{b1}[^{b2}]*{b2}')
+    if r:
+        return r
+    return None
+
+
+def find_angle_brackets(input_text):
+    return find_brackets(input_text, '<', '>')
+
+
+def find_wn_quotes(input_text):
+    return find_brackets(input_text, '<', '>')
+    # return search_regex(input_text, r"`.*'")
+
+
+def find_new_quotes(input_text):
+    return find_brackets(input_text, '“', '”')
+
+
+def find_oddities(input_text):
+    if find_wn_quotes(input_text):
+        return input_text
+    if find_double_quotes(input_text):
+        return input_text
+
+    if find_unclosed_wn_quotes(input_text):
+        return input_text
+    if find_unclosed_parentheses(input_text):
+        return input_text
+
+    if find_uneven_double_quotes(input_text):
+        return input_text
+    if find_uneven_single_quotes(input_text):
+        return input_text
+
+    if find_2_hyphens(input_text):
+        return input_text
+    if find_backtick(input_text):
+        return input_text
+
+    if find_etc(input_text):
+        return input_text
+    if find_eg(input_text):
+        return input_text
+
+    if find_angle_brackets(input_text):
+        return input_text
+    return None
+
+
 def process_apostrophe_1(input_text):
     r = find_unclosed_wn_quotes(input_text)
     if r:
@@ -196,38 +253,6 @@ def process_wn_quotes(input_text):
     if r:
         return r
     return input_text
-
-
-def find_angle_brackets(input_text):
-    r = search_regex(input_text, r'<<<[^>]*>>>')
-    if r:
-        return r
-    return None
-
-
-def find_oddities(input_text):
-    r = find_backtick(input_text)
-    if r:
-        return input_text
-    r = find_double_quotes(input_text)
-    if r:
-        return input_text
-    r = find_unclosed_parentheses(input_text)
-    if r:
-        return input_text
-    r = find_2_hyphens(input_text)
-    if r:
-        return input_text
-    r = find_etc(input_text)
-    if r:
-        return input_text
-    r = find_eg(input_text)
-    if r:
-        return input_text
-    r = find_2_hyphens(input_text)
-    if r:
-        return input_text
-    return None
 
 
 def default_process(input_text):
