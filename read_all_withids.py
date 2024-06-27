@@ -20,8 +20,8 @@ progress = False
 full_print = False
 
 
-def process_text(input_text, rowid, checkf):
-    r = checkf(input_text)
+def process_text(input_text, rowid, processingf):
+    r = processingf(input_text)
     if r:
         if full_print:
             print(f"{rowid}\t{input_text}\t▶\t{r}")
@@ -42,7 +42,7 @@ def build_sql(sql, resume):
     return sql + f" WHERE oewnsynsetid >= {resume}" if resume else sql
 
 
-def read(file, resume, checkf):
+def read(file, resume, processingf):
     conn = sqlite3.connect(file)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
@@ -60,7 +60,7 @@ def read(file, resume, checkf):
         type = row["type"]
         oewnsynsetid = row["oewnsynsetid"]
         rowid = f"{oewnsynsetid}\t{tablerowid}\t{type}"
-        if process_text(text, rowid, checkf):
+        if process_text(text, rowid, processingf):
             process_count += 1
         pb.update(1)
     conn.close()
@@ -77,10 +77,10 @@ def main():
     parser.add_argument('--resume', type=int, help='row to resume from')
     parser.add_argument('--processing', type=str, help='processing function to apply')
     args = parser.parse_args()
-    processing = get_processing(args.processing)
-    if processing:
-        print(processing, file=sys.stderr)
-    read(args.database, args.resume, processing)
+    processingf = get_processing(args.processing)
+    if processingf:
+        print(processingf, file=sys.stderr)
+    read(args.database, args.resume, processingf)
 
 
 if __name__ == '__main__':
