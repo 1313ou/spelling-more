@@ -8,4 +8,4 @@
 /wordnet.py
 /wordnet_yaml.py
 /data
-/test*
+/test*.xml
